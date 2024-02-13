@@ -21,4 +21,5 @@ INSTALL_DIR/schedule_satellite.sh "NOAA 19" 137.1000
 INSTALL_DIR/schedule_satellite.sh "NOAA 18" 137.9125
 INSTALL_DIR/schedule_satellite.sh "NOAA 15" 137.6200
 
-node INSTALL_DIR/aws-s3/upload-upcoming-passes.js INSTALL_DIR/upcoming_passes.txt
+#node INSTALL_DIR/aws-s3/upload-upcoming-passes.js INSTALL_DIR/upcoming_passes.txt
+python3 INSTALL_DIR/aws-s3/upload-upcoming-passes.py INSTALL_DIR/upcoming_passes.txt

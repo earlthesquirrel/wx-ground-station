@@ -44,6 +44,11 @@ if [ -e $AUDIO_FILE ]
     CHAN_A=`grep "Channel A" $LOGFILE | head -1`
     CHAN_B=`grep "Channel B" $LOGFILE | head -1`
 
-    echo "node INSTALL_DIR/aws-s3/upload-wx-images.js \"$SAT\" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION \"${TLE1}\" \"${TLE2}\" \"$GAIN\" \"${CHAN_A}\" \"${CHAN_B}\"" >> $LOGFILE 2>&1
-    node INSTALL_DIR/aws-s3/upload-wx-images.js "$SAT" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION "${TLE1}" "${TLE2}" "$GAIN" "${CHAN_A}" "${CHAN_B}" >> $LOGFILE 2>&1
+#echo "node INSTALL_DIR/aws-s3/upload-wx-images.js \"$SAT\" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION \"${TLE1}\" \"${TLE2}\" \"$GAIN\" \"${CHAN_A}\" \"${CHAN_B}\"" >> $LOGFILE 2>&1
+
+    echo "python3 INSTALL_DIR/aws-s3/upload-wx-images.py \"$SAT\" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION \"${TLE1}\" \"${TLE2}\" \"$GAIN\" \"${CHAN_A}\" \"${CHAN_B}\"" >> $LOGFILE 2>&1
+
+#node INSTALL_DIR/aws-s3/upload-wx-images.js "$SAT" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION "${TLE1}" "${TLE2}" "$GAIN" "${CHAN_A}" "${CHAN_B}" >> $LOGFILE 2>&1
+
+    python3 INSTALL_DIR/aws-s3/upload-wx-images.py "$SAT" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION "${TLE1}" "${TLE2}" "$GAIN" "${CHAN_A}" "${CHAN_B}" >> $LOGFILE 2>&1
 fi
