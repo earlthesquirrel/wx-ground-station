@@ -1,17 +1,12 @@
-import boto3
 import sys
-import uuid
+from sshUtils import SSHUtils
 
-# Configure AWS S3
-REGION = ""
-BUCKET = ""
 IMAGE_DIR = "images/"
-boto3.setup_default_session(region_name=REGION)
-s3 = boto3.client('s3')
+sshu = SSHUtils()
 
 # Get the base of the file name from command line arguments
 filebase = sys.argv[1]
-print(f"Removing files {filebase}* from S3...")
+print(f"Removing files {filebase}* from server...")
 
 # List of files to remove
 files = [
@@ -30,19 +25,17 @@ files = [
     f"thumbs/{filebase}-THERM.png"
 ]
 
+
 # Function to remove a file from S3
-def remove_file(filename):
-    params = {
-        'Bucket': BUCKET,
-        'Key': IMAGE_DIR + filename,
-    }
+def remove_file(file_name):
+    path_to_delete = IMAGE_DIR + file_name
     try:
-        s3.delete_object(**params)
-        print(f"  successfully removed {filename}")
+        sshu.delete_remote_file(path_to_delete)
+        print(f"  successfully removed {file_name}")
     except Exception as err:
         print(err)
+
 
 # Remove each file
 for filename in files:
     remove_file(filename)
-

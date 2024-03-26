@@ -1,16 +1,15 @@
-import boto3
 import os
+import io
 import glob
-from PIL import Image, ImageDraw, ImageFont
+import json
+from PIL import (Image, ImageDraw, ImageFont)
 from datetime import datetime
 import sys
 
-REGION = ""
-BUCKET = ""
-LOCATION = ""
+from sshUtils import SSHUtils
+
+sshu = SSHUtils()
 IMAGE_DIR = "images/"
-boto3.setup_default_session(region_name=REGION)
-s3 = boto3.client('s3')
 
 satellite = sys.argv[2]
 frequency = sys.argv[3]
@@ -57,6 +56,7 @@ metadata = {
     'images': []
 }
 
+
 async def upload_image(image, filename):
     w, h = image.size
     enhancement = None
@@ -84,19 +84,13 @@ async def upload_image(image, filename):
     new_image.paste(image, (0, 48))
     image = new_image
     draw = ImageDraw.Draw(image)
-    draw.text((5, 5), f"{metadata['date']} {metadata['time']}  satellite: {metadata['satellite']}  elevation: {metadata['elevation']}°  enhancement: {enhancement}", font=font, fill="#FFFFFF")
-    draw.text((5, 25), LOCATION, font=font, fill="#FFFFFF")
+    draw.text((5, 5),
+              f"{metadata['date']} {metadata['time']}  satellite: {metadata['satellite']}  elevation: {metadata['elevation']}°  enhancement: {enhancement}",
+              font=font, fill="#FFFFFF")
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
     buffer.seek(0)
-    params = {
-        'ACL': "public-read",
-        'ContentType': "image/png",
-        'Bucket': BUCKET,
-        'Key': IMAGE_DIR + filename,
-        'Body': buffer
-    }
-    s3.put_object(**params)
+    sshu.upload_file_object_via_scp(buffer, IMAGE_DIR + filename)
     print(f"  successfully uploaded {filename}")
     thumb = image.copy()
     thumb.thumbnail((260, 200))
@@ -104,40 +98,24 @@ async def upload_image(image, filename):
     thumb.save(thumb_buffer, format="PNG")
     thumb_buffer.seek(0)
     thumb_filename = "thumbs/" + filename
-    params = {
-        'ACL': "public-read",
-        'ContentType': "image/png",
-        'Bucket': BUCKET,
-        'Key': IMAGE_DIR + thumb_filename,
-        'Body': thumb_buffer
-    }
-    s3.put_object(**params)
+    sshu.upload_file_object_via_scp(thumb_buffer, IMAGE_DIR + thumb_filename)
     print(f"  successfully uploaded thumb {filename}")
     return image_info
 
-def upload_metadata(filebase):
+
+def upload_metadata():
     metadata_filename = filebase + ".json"
     print(f"uploading metadata {json.dumps(metadata, indent=2)}")
-    params = {
-        'ACL': "public-read",
-        'Bucket': BUCKET,
-        'Key': IMAGE_DIR + metadata_filename,
-        'Body': json.dumps(metadata, indent=2)
-    }
-    s3.put_object(**params)
+    sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2), IMAGE_DIR + metadata_filename)
     print(f"  successfully uploaded metadata {metadata_filename}")
+
 
 files = glob.glob(filebase + "-[A-Z]*.png")
 upload_promises = []
-for filename in files:
-    basename = os.path.basename(filename)
-    image = Image.open(filename)
-    upload_promises.append(upload_image(image, basename))
-    if len(upload_promises) == len(files):
-        for future in upload_promises:
-            future.result()
-        metadata['images'] = [result.result() for result in upload_promises]
-        print(f"values: {json.dumps(metadata['images'], indent=2)}")
-        upload_metadata(os.path.basename(filebase))
-
-
+for file_name in files:
+    basename = os.path.basename(file_name)
+    image_file = Image.open(file_name)
+    image_info_result = upload_image(image_file, basename)
+    metadata['images'] = image_info_result
+    print(f"values: {json.dumps(metadata['images'], indent=2)}")
+    upload_metadata()
