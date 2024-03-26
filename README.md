@@ -5,4 +5,5 @@ For full details of the project, see the [full project writeup on the Project La
 
 The scripting in this project is largely based on the excellent work by [Jim Haslett](https://www.youtube.com/user/JimHaslett) as described in his well-written Instructable, [Raspberry Pi NOAA Weather Satellite Receiver](https://www.instructables.com/id/Raspberry-Pi-NOAA-Weather-Satellite-Receiver/).
 
-
+Earl Baugh has done the conversion to Python as well as change code where necessary to support running S3 on TrueNas or FreeNAS
+See this video : https://www.youtube.com/watch?v=vuvCXf9wQYs for an overview on the capabilities
