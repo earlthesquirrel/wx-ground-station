@@ -1,6 +1,5 @@
 
 //
-// Replace BUCKET_NAME with the bucket name.
 //
 var bucketName = '';
 // Replace this block of code with the sample code located at:
@@ -13,10 +12,10 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 });
 
 // Create a mapbox.com account and get access token
-const MAP_BOX_ACCESS_TOKEN = 'YOUR MAPBOX TOKEN';
-const GROUND_STATION_LAT =  45.0468;
-const GROUND_STATION_LON = -93.4747;
-const GROUND_STATION_NAME = 'my ground station';
+const MAP_BOX_ACCESS_TOKEN = '***REMOVED***';
+const GROUND_STATION_LAT =  34.06730100;
+const GROUND_STATION_LON = -84.21160960;
+const GROUND_STATION_NAME = 'Baugh.org ground station';
 const MAX_CAPTURES = 20;
 const DIR_NAME = "images";
 

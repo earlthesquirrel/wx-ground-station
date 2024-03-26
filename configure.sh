@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # create directories
 if [ ! -d "audio" ] 
