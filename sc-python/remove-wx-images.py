@@ -1,7 +1,7 @@
 import sys
 from sshUtils import SSHUtils
 
-IMAGE_DIR = "images/"
+IMAGE_DIR = "sat-images/baugh-org.wx/"
 sshu = SSHUtils()
 
 # Get the base of the file name from command line arguments
