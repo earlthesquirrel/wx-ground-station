@@ -12,7 +12,7 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 });
 
 // Create a mapbox.com account and get access token
-const MAP_BOX_ACCESS_TOKEN = '***REMOVED***';
+const MAP_BOX_ACCESS_TOKEN = 'pk.eyJ1IjoiZWJhdWdoIiwiYSI6ImNsNHJua285czB5M3gzZG4zaDdka3F3ZHEifQ.vsZaGpIRWVE4Utwl1JWGVA';
 const GROUND_STATION_LAT =  34.06730100;
 const GROUND_STATION_LON = -84.21160960;
 const GROUND_STATION_NAME = 'Baugh.org ground station';
