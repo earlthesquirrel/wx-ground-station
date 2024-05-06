@@ -2,6 +2,7 @@ import os
 import io
 import glob
 import json
+import asyncio
 from PIL import (Image, ImageDraw, ImageFont)
 from datetime import datetime
 import sys
@@ -9,19 +10,20 @@ import sys
 from sshUtils import SSHUtils
 
 sshu = SSHUtils()
-IMAGE_DIR = "images/"
+IMAGE_DIR = "/home/pi/sat-images/baugh-org.wx/"
 
-satellite = sys.argv[2]
-frequency = sys.argv[3]
-filebase = sys.argv[4]
-elevation = sys.argv[5]
-direction = sys.argv[6]
-duration = sys.argv[7]
-tle1 = sys.argv[8]
-tle2 = sys.argv[9]
-gain = sys.argv[10]
-chan_a = sys.argv[11]
-chan_b = sys.argv[12]
+satellite = sys.argv[1]
+print(satellite)
+frequency = sys.argv[2]
+filebase = sys.argv[3]
+elevation = sys.argv[4]
+direction = sys.argv[5]
+duration = sys.argv[6]
+tle1 = sys.argv[7]
+tle2 = sys.argv[8]
+gain = sys.argv[9]
+chan_a = sys.argv[10]
+chan_b = sys.argv[11]
 basename = os.path.basename(filebase)
 dirname = os.path.dirname(filebase)
 components = basename.split("-")
@@ -38,7 +40,7 @@ if chan_a:
 # example "Channel B: 4 (thermal infrared)"
 if chan_b:
     chan_b = chan_b.split(": ")[1]
-print(f"Uploading files {basename}* to S3...")
+print(f"Uploading files {basename}* to website...")
 metadata = {
     'satellite': satellite,
     'date': date,
@@ -104,10 +106,21 @@ async def upload_image(image, filename):
 
 
 def upload_metadata():
-    metadata_filename = filebase + ".json"
+    #metadata_filename = filebase + ".json"
+    metadata_filename = IMAGE_DIR + "Fred" + ".json"
+    print(metadata_filename)
     print(f"uploading metadata {json.dumps(metadata, indent=2)}")
-    sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2), IMAGE_DIR + metadata_filename)
+    print(f"ready to dump")
+    print(json.dumps(metadata, indent=2))
+    #sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2),  metadata_filename)
+    sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2),  metadata_filename)
     print(f"  successfully uploaded metadata {metadata_filename}")
+
+
+def upload_file(image_file, basename):
+    loop = asyncio.get_event_loop()
+    result = loop.run_until_complete(upload_image(image_file, basename))
+    #loop.close()
 
 
 files = glob.glob(filebase + "-[A-Z]*.png")
@@ -115,7 +128,9 @@ upload_promises = []
 for file_name in files:
     basename = os.path.basename(file_name)
     image_file = Image.open(file_name)
-    image_info_result = upload_image(image_file, basename)
+    print(basename)
+    image_info_result = upload_file(image_file, basename)
     metadata['images'] = image_info_result
-    print(f"values: {json.dumps(metadata['images'], indent=2)}")
+    print(metadata)
     upload_metadata()
+
