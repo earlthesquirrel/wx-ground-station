@@ -1,29 +1,12 @@
 
-//
-//
-var bucketName = '';
-// Replace this block of code with the sample code located at:
-// Cognito -- Manage Identity Pools -- [identity_pool_name] -- Sample Code -- JavaScript
-//
-// Initialize the Amazon Cognito credentials provider
-AWS.config.region = 'us-west-2'; // Region
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: ''
-});
-
 // Create a mapbox.com account and get access token
-const MAP_BOX_ACCESS_TOKEN = 'YOUR-TOKEN';
+const MAP_BOX_ACCESS_TOKEN = 'ADD-KEY-HERE';
 const GROUND_STATION_LAT =  34.06730100;
 const GROUND_STATION_LON = -84.21160960;
 const GROUND_STATION_NAME = 'Baugh.org ground station';
 const MAX_CAPTURES = 20;
-const DIR_NAME = "images";
-
-// Create a new service object
-var s3 = new AWS.S3({
-  apiVersion: '2006-03-01',
-  params: {Bucket: bucketName}
-});
+//const DIR_NAME = "baugh.org.wx";
+const DIR_NAME = "https://www.baugh.org/satellite";
 
 var tlejs = new TLEJS();
 var lastPositionOfNextPass;
@@ -34,16 +17,28 @@ function getSatelliteLink(tles) {
   return "https://www.n2yo.com/satellite/?s=" + satNum;
 }
 
+function loadFile(filePath) {
+  var result = null;
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("GET", filePath, false);
+  xmlhttp.send();
+  if (xmlhttp.status==200) {
+    result = xmlhttp.responseText;
+  }
+  return result;
+}
 
 function load() {
   $('#location').html(GROUND_STATION_LAT + ', ' + GROUND_STATION_LON);
   getUpcomingPassInfo();
-  getImageMetadata(DIR_NAME, function (err, metadata) {
+  getImageMetadata(DIR_NAME, function (err, metadataSet) {
     if (err) {
       $('#messages').html('<div class="alert alert-danger" role="alert">Error getting image metadata: ' + err + '</div>');
       return;
     }
     $('#messages').html('');
+
+    metadata = Array.from(metadataSet);
 
     // show newest first
     var sortedMeta = metadata.sort(function (m1, m2) {
@@ -201,18 +196,31 @@ function load() {
 
 
 function getImageMetadata(DIR_NAME, cb) {
-  var pattern = new RegExp(".+-[0-9]+[0-9]+\.json$");
-  s3.listObjects({Prefix: DIR_NAME}, function(err, data) {
-    if (err) {
-      return cb('There was an error viewing the directory: ' + err.message);
-    }
-    if (data && data.Contents && (data.Contents.length == 0)) {
-      return cb('directory not found');
-    }
-    var metadataFiles = data.Contents.filter(function (object) {
-      return pattern.test(object.Key);
-    });
+  var jsonFileDirectory = DIR_NAME+'/data/';
 
+  // get auto-generated page 
+  $.ajax({url: jsonFileDirectory}).then(function(html) {
+    // create temporary DOM element
+    var document = $(html);
+    results = new Set();
+
+    // find all links ending with .json 
+    document.find('a[href$=".json"]').each(function() {
+        var jsonName = $(this).text();
+        var jsonUrl = $(this).attr('href');
+
+	// Get contents of that file...
+	text = getText(jsonFileDirectory+jsonName, 'json');
+	var s = JSON.parse(text);
+        results.add(s);
+	return;
+    })
+
+    cb(null, results);
+  });
+	
+/*
+ Now it then brings back the JSON content from the files that match..
     var promises = metadataFiles.map(function(md) {
       var params = {
         Bucket: bucketName,
@@ -224,30 +232,50 @@ function getImageMetadata(DIR_NAME, cb) {
       });
     });
 
-    Promise.all(promises).then(function(results) {
-        cb(null, results);
-    })
+*/
+}
 
-  });
+function getText(URL, contentType) {
+
+    // read text from URL location
+    var request = new XMLHttpRequest();
+    request.open('GET', URL, false);
+    request.send(null);
+    // Maybe add some error checking around this... not clear...
+    // since we're waiting for it in a sych manner.
+    return request.responseText;
 }
 
 function getUpcomingPassInfo() {
 
-  $.get(DIR_NAME + "/upcoming_passes.json", function(data) {
+  var data = loadFile("./upcoming_passes.json");
+
+  function splitLines(t) { var parts = t.split(/\r\n|\r|\n/); parts.pop(); return parts; }
+
+  data = splitLines(data);
+  for (var j=0; j<data.length; j++) {
+	data[j] = JSON.parse(data[j]);
+  }
+
+  passInfo(data);
+
+  function passInfo(data) {
+
     var now = new Date();
     var processingTime = 180000; // approx 3 minutes to process and upload images.
     for(var i=0;i<data.length;i++) {
-      var passTime = new Date(data[i].end + processingTime);
+	console.log(data[i]);
+      var passTime = new Date(Date.parse(data[i].end) + processingTime);
       if ((!nextPass) && (passTime > now)) {
         nextPass = data[i];
       }
     }
     var satLink = '<a target="_blank" href="' + getSatelliteLink([nextPass.tle1, nextPass.tle2]) + '">' + nextPass.satellite + '</a>';
     var startDate = new Date(nextPass.start);
-    var endDate = new Date(nextPass.end + processingTime);
+    var endDate = new Date(Date.parse(nextPass.end) + processingTime);
     $("#upcoming_passes").append([
       '<div>',
-      '<h5>next image capture: ',
+      '<h5>Next image capture: ',
       satLink,
       ' ',
       nextPass.direction,
@@ -255,10 +283,10 @@ function getUpcomingPassInfo() {
       nextPass.elevation,
       '&deg elevation',
       '</h5>',
-      '<h5>capture begins at: ',
+      '<h5>Capture begins at: ',
       ("0" + startDate.getHours()).slice(-2) + ":" + ("0" + startDate.getMinutes()).slice(-2),
       '</h5>',
-      '<h5>imagery approx: ',
+      '<h5>Imagery available approx: ',
       ("0" + endDate.getHours()).slice(-2) + ":" + ("0" + endDate.getMinutes()).slice(-2),
       '</h5>',
       '</div>'].join('')
@@ -428,5 +456,5 @@ function getUpcomingPassInfo() {
 
     });
 
-  });
+  }
 }
