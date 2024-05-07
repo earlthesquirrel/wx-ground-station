@@ -93,7 +93,8 @@ async def upload_image(image, filename):
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
     buffer.seek(0)
-    sshu.upload_file_object_via_scp(buffer, IMAGE_DIR + filename)
+    image_filename = "data/" + filename
+    sshu.upload_file_object_via_scp(buffer, IMAGE_DIR + image_filename)
     print(f"  successfully uploaded {filename}")
     thumb = image.copy()
     thumb.thumbnail((260, 200))
@@ -107,9 +108,7 @@ async def upload_image(image, filename):
 
 
 def upload_metadata():
-    #xx_metadata_filename = filebase + ".json"
-    #print("Old name = "+xx_metadata_filename)
-    metadata_filename = IMAGE_DIR + basename + ".json"
+    metadata_filename = IMAGE_DIR + "data/"+ basename + ".json"
     print(metadata_filename)
     print(f"uploading metadata {json.dumps(metadata, indent=2)}")
     print(f"ready to dump")
@@ -117,7 +116,6 @@ def upload_metadata():
 
     array_str = json.dumps(metadata, indent=2)
     array_file = io.StringIO(array_str)
-    #sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2),  metadata_filename)
     sshu.upload_file_object_via_scp(array_file, metadata_filename)
     print(f"  successfully uploaded metadata {metadata_filename}")
 
