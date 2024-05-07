@@ -25,6 +25,7 @@ gain = sys.argv[9]
 chan_a = sys.argv[10]
 chan_b = sys.argv[11]
 basename = os.path.basename(filebase)
+print("Basename is "+basename)
 dirname = os.path.dirname(filebase)
 components = basename.split("-")
 date = components[1]
@@ -106,14 +107,17 @@ async def upload_image(image, filename):
 
 
 def upload_metadata():
-    #metadata_filename = filebase + ".json"
-    metadata_filename = IMAGE_DIR + "Fred" + ".json"
+    #xx_metadata_filename = filebase + ".json"
+    #print("Old name = "+xx_metadata_filename)
+    metadata_filename = IMAGE_DIR + basename + ".json"
     print(metadata_filename)
     print(f"uploading metadata {json.dumps(metadata, indent=2)}")
     print(f"ready to dump")
     print(json.dumps(metadata, indent=2))
+    array_str = json.dumps(metadata, indent=2)
+    array_file = io.StringIO(array_str)
     #sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2),  metadata_filename)
-    sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2),  metadata_filename)
+    sshu.upload_file_object_via_scp(array_file, metadata_filename)
     print(f"  successfully uploaded metadata {metadata_filename}")
 
 

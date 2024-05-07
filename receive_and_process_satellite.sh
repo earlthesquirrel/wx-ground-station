@@ -9,9 +9,9 @@ DURATION=$6
 ELEVATION=$7
 DIRECTION=$8
 
-AUDIO_DIR=INSTALL_DIR/audio
-IMAGE_DIR=INSTALL_DIR/images
-LOG_DIR=INSTALL_DIR/logs
+AUDIO_DIR=/home/linaro/wx-pi/audio
+IMAGE_DIR=/home/linaro/wx-pi/images
+LOG_DIR=/home/linaro/wx-pi/logs
 MAP_FILE=${IMAGE_DIR}/${FILEKEY}-map.png
 AUDIO_FILE=${AUDIO_DIR}/${FILEKEY}.wav
 LOGFILE=${LOG_DIR}/${FILEKEY}.log
@@ -45,8 +45,8 @@ if [ -e $AUDIO_FILE ]
     CHAN_B=`grep "Channel B" $LOGFILE | head -1`
 
 
-    echo "python3 INSTALL_DIR/sc-python/upload-wx-images.py \"$SAT\" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION \"${TLE1}\" \"${TLE2}\" \"$GAIN\" \"${CHAN_A}\" \"${CHAN_B}\"" >> $LOGFILE 2>&1
+    echo "python3 /home/linaro/wx-pi/sc-python/upload-wx-images.py \"$SAT\" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION \"${TLE1}\" \"${TLE2}\" \"$GAIN\" \"${CHAN_A}\" \"${CHAN_B}\"" >> $LOGFILE 2>&1
 
 
-    python3 INSTALL_DIR/sc-python/upload-wx-images.py "$SAT" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION "${TLE1}" "${TLE2}" "$GAIN" "${CHAN_A}" "${CHAN_B}" >> $LOGFILE 2>&1
+    python3 /home/linaro/wx-pi/sc-python/upload-wx-images.py "$SAT" $FREQ ${IMAGE_DIR}/${FILEKEY} $ELEVATION $DIRECTION $DURATION "${TLE1}" "${TLE2}" "$GAIN" "${CHAN_A}" "${CHAN_B}" >> $LOGFILE 2>&1
 fi
