@@ -2,7 +2,7 @@ import paramiko
 
 
 class SSHUtils:
-    def __init__(self, host="www.baugh.org", port=4022, username="pi", password: str = "piX8662004499"):
+    def __init__(self, host="xxx.xxx.xxxxx.xxx.xx", port=XXXX, username="xx", password: str = "xxxxxxx"):
         self.host = host
         self.port = port
         self.username = username

@@ -114,6 +114,7 @@ def upload_metadata():
     print(f"uploading metadata {json.dumps(metadata, indent=2)}")
     print(f"ready to dump")
     print(json.dumps(metadata, indent=2))
+
     array_str = json.dumps(metadata, indent=2)
     array_file = io.StringIO(array_str)
     #sshu.upload_file_object_via_scp(json.dumps(metadata, indent=2),  metadata_filename)

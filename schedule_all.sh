@@ -21,4 +21,4 @@ rm -f /home/linaro/wx-pi/upcoming_passes.txt
 /home/linaro/wx-pi/schedule_satellite.sh "NOAA 18" 137.9125
 /home/linaro/wx-pi/schedule_satellite.sh "NOAA 15" 137.6200
 
-python3 /home/linaro/wx-pi/sc-python/upload-upcoming-passes.py /home/linaro/wx-pi/upcoming_passes.txt
+python3 INSTALL_DIR/sc-python/upload-upcoming-passes.py INSTALL_DIR/upcoming_passes.txt
